@@ -1,0 +1,10 @@
+{
+  "singleQuote": true,
+  "pugSingleQuote": false,
+  "pugClassLocation": "before-attributes",
+  "pugIdNotation": "as-is",
+  "pugAttributeSeparator": "none",
+  "pugExplicitDiv": false,
+  "pugEmptyAttributes": "none",
+  "semi": true
+}

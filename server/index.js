@@ -1,7 +1,8 @@
 // получаем доступ к файлу .env
 require('dotenv').config()
 const express = require('express');
-// const cors = require('cors');
+const helmet = require('helmet');
+const cors = require('cors');
 // const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose')
 const { chats } = require('./data/data')
@@ -18,6 +19,12 @@ const start = async () => {
         //     useNewUrlParser: true,
         //     useUnifiedTopology: true
         // })
+
+        app.use(helmet({
+            contentSecurityPolicy: false
+        }));
+
+        app.use(cors());
 
         app.get("/", (req, res) => {
             res.send("API is Running");
