@@ -10,6 +10,7 @@ const colors = require('colors');
 // const { chats } = require('./data/data');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes')
+const { notFound, errorHandler } = require('./middleware/errorMiddleware')
 
 const app = express();
 // Номер порта будет вызван из файла .env, либо будет равен 5000
@@ -32,6 +33,9 @@ const start = async () => {
     });
 
     app.use('/api/user', userRoutes)
+
+    app.use(notFound)
+    app.use(errorHandler)
 
     app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`.yellow.bold));
 
