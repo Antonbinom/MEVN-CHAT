@@ -145,7 +145,6 @@ const submitForm = async (inputs) => {
         'Content-type': 'application/json',
       },
     };
-    debugger;
     const { data } = await api.post('/api/user', userData, config);
     localStorage.setItem('userInfo', JSON.stringify(data));
     router.push({ path: '/chats' });
