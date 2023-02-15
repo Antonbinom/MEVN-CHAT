@@ -3,29 +3,24 @@ q-form(@submit="submitForm(inputs)")
   div(v-for="(input, index) in inputs")
     q-badge.text-weight-bold.q-mb-sm(color="transparent" text-color="black") {{ `${input.name} *` }}
     q-input(
-      autocomplete="on"
-      v-if="input.type !== 'file'"
-      filled
       v-model="input.value"
-      :placeholder="`${input.placeholder}`"
+      filled
       lazy-rules
-      :rules="[(val) => (val && val.length > 0) || 'Please type something']"
+      :rules="[val => val && val.length > 0 || 'Please type something']"
       :type="input.isPwd ? 'password' : 'text'"
+      :placeholder="input.placeholder"
+      v-if="input.type !== 'file'"
     )
       template(v-if="input.hasOwnProperty('isPwd')" v-slot:append)
-        q-icon.cursor-pointer(
-          :name="input.isPwd ? 'visibility_off' : 'visibility'"
-          @click="input.isPwd = !input.isPwd"
-        )
+        q-icon.cursor-pointer(:name="input.isPwd ? 'visibility_off' : 'visibility'" @click="input.isPwd = !input.isPwd")
     q-file(
+      v-model="input.file"
+      bottom-slots
+      label="Choose file"
       @update:model-value="postImage"
-      name="file"
       v-if="input.type === 'file'"
       filled
       :type="input.type"
-      bottom-slots
-      label="Choose file"
-      v-model="input.file"
       max-files="1"
       counter
       accept="image/*"
@@ -40,18 +35,10 @@ q-form(@submit="submitForm(inputs)")
           name="close"
           @click.stop.prevent="input.file = null"
         )
-  q-btn.row.q-mt-md(
-    :loading="isLoading"
-    :disable="isLoading"
-    type="submit"
-    style="width: 100%"
-    color="primary"
-    label="Sign Up"
-  )
+  q-btn.row.q-mt-md(:loading="isLoading" :disable="isLoading" color="primary" type="submit" style="width: 100%" label="Sign Up")
 </template>
 
-<script setup  lang="ts">
-// --- Imports ---
+<script setup>
 import { ref } from 'vue';
 import { api } from '../boot/axios';
 import { Notify } from 'quasar';
@@ -59,51 +46,18 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-// --- Refs ---
 const inputs = ref([
-  {
-    name: 'Name',
-    value: '',
-    placeholder: 'Enter Your Name',
-    type: 'text',
-  },
-  {
-    name: 'Email Address',
-    value: '',
-    placeholder: 'Enter Your Email Address',
-    type: 'text',
-  },
-  {
-    name: 'Password',
-    value: '',
-    placeholder: 'Enter Your Password',
-    isPwd: true,
-    type: 'password',
-  },
-  {
-    name: 'Confirm Password',
-    value: '',
-    placeholder: 'Enter Your Confirm Password',
-    isPwd: true,
-    type: 'password',
-  },
-  {
-    name: 'Upload your Picture',
-    file: null,
-    url: '',
-    type: 'file',
-  },
+  { name: 'Name', value: '', placeholder: 'Enter Your Name', type: 'text' },
+  { name: 'Email Address', value: '', placeholder: 'Enter Your Email Address', type: 'text' },
+  { name: 'Password', value: '', placeholder: 'Enter Your Password', isPwd: true, type: 'password' },
+  { name: 'Confirm Password', value: '', placeholder: 'Enter Your Confirm Password', isPwd: true, type: 'password' },
+  { name: 'Upload your Picture', file: null, url: '', type: 'file' },
 ]);
+
 const isLoading = ref(false);
 
-// --- Methods ---
 const onRejected = (file) => {
-  if (file.failedPropValidation) {
-    Notify.create({
-      message: 'Only images allowed',
-      type: 'negative',
-    });
-  }
+  if (file.failedPropValidation) Notify.create({ message: 'Only images allowed', type: 'negative' });
 };
 
 const makeForm = (pic) => {
@@ -119,45 +73,22 @@ const postImage = async (image) => {
   isLoading.value = true;
   try {
     const { data } = await api.post(url, makeForm(image));
-    console.log(data);
-    inputs.value.forEach((input) => {
-      if (input.type === 'file') input.url = data.url;
-    });
-    isLoading.value = false;
-  } catch (err) {
-    console.log(err);
-    isLoading.value = false;
-  }
+    inputs.value.forEach((input) => { if (input.type === 'file') input.url = data.url; });
+  } catch (err) { console.log(err); }
+  isLoading.value = false;
 };
 
 const submitForm = async (inputs) => {
-  isLoading.value = true;
+  const [name, email, password, , image] = inputs;
+  const userData = { name: name.value, email: email.value, password: password.value, pic: image.url };
+  const config = { headers: { 'Content-type': 'application/json' } };
   try {
-    const [name, email, password, , image] = inputs;
-    const userData = {
-      name: name.value,
-      email: email.value,
-      password: password.value,
-      pic: image.url,
-    };
-    const config = {
-      headers: {
-        'Content-type': 'application/json',
-      },
-    };
+    isLoading.value = true;
     const { data } = await api.post('/api/user', userData, config);
     localStorage.setItem('userInfo', JSON.stringify(data));
     router.push({ path: '/chats' });
-
-    isLoading.value = false;
-
-    inputs.value.forEach((input) => {
-      input.value = '';
-      input.file = null;
-    });
-  } catch (err) {
-    console.log(err);
-    isLoading.value = false;
-  }
+    inputs.value.forEach((input) => { input.value = ''; input.file = null; });
+  } catch (err) { console.log(err); }
+  isLoading.value = false;
 };
 </script>
