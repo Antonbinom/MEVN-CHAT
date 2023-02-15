@@ -155,7 +155,6 @@ const submitForm = async (inputs) => {
       input.value = '';
       input.file = null;
     });
-    console.log(inputs.value);
   } catch (err) {
     console.log(err);
     isLoading.value = false;

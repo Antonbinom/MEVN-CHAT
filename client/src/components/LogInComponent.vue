@@ -36,6 +36,7 @@ q-form(@submit="submitForm(inputs)")
 
 <script setup>
 import { ref } from 'vue';
+import { api } from '../boot/axios';
 
 // --- Refs ---
 const inputs = ref([
@@ -51,10 +52,40 @@ const inputs = ref([
     isPwd: true,
   },
 ]);
+
 const isLoading = ref(false);
 
 // --- Methods ---
-const submitForm = async () => {
+// const handlerClick = () => {
+
+// }
+const submitForm = async (inputs) => {
+  // debugger
   isLoading.value = true;
+  try{
+    const url = '/api/user/login';
+    const [email, password] = inputs;
+    const userData = {
+      email: email.value,
+      password: password.value,
+    };
+    const config = {
+      headers: {
+        'Content-type': 'application/json',
+      },
+    };
+
+    const {data} = await api.post(url, userData, config)
+
+    localStorage.setItem('userInfo', JSON.stringify(data));
+    router.push({ path: '/chats' });
+    isLoading.value = false;
+
+    inputs.forEach((input) => input.value = '');
+
+  }catch (err) {
+    isLoading.value = false;
+    throw new Error(err)
+  }
 };
 </script>
