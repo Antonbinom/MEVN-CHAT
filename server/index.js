@@ -6,11 +6,10 @@ const helmet = require('helmet');
 const cors = require('cors');
 const colors = require('colors');
 
-// const cookieParser = require('cookie-parser');
-// const { chats } = require('./data/data');
 const connectDB = require('./config/db');
-const userRoutes = require('./routes/userRoutes')
-const { notFound, errorHandler } = require('./middleware/errorMiddleware')
+const userRoutes = require('./routes/userRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
 // Номер порта будет вызван из файла .env, либо будет равен 5000
@@ -33,6 +32,7 @@ const start = async () => {
     });
 
     app.use('/api/user', userRoutes)
+    app.use('/api/chat', chatRoutes)
 
     app.use(notFound)
     app.use(errorHandler)
