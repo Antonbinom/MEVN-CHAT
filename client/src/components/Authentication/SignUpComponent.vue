@@ -39,56 +39,88 @@ q-form(@submit="submitForm(inputs)")
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { api } from '../boot/axios';
-import { Notify } from 'quasar';
-import { useRouter } from 'vue-router';
+import { ref } from "vue";
+import { api } from "src/boot/axios";
+import { Notify } from "quasar";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 
 const inputs = ref([
-  { name: 'Name', value: '', placeholder: 'Enter Your Name', type: 'text' },
-  { name: 'Email Address', value: '', placeholder: 'Enter Your Email Address', type: 'text' },
-  { name: 'Password', value: '', placeholder: 'Enter Your Password', isPwd: true, type: 'password' },
-  { name: 'Confirm Password', value: '', placeholder: 'Enter Your Confirm Password', isPwd: true, type: 'password' },
-  { name: 'Upload your Picture', file: null, url: '', type: 'file' },
+  { name: "Name", value: "", placeholder: "Enter Your Name", type: "text" },
+  {
+    name: "Email Address",
+    value: "",
+    placeholder: "Enter Your Email Address",
+    type: "text",
+  },
+  {
+    name: "Password",
+    value: "",
+    placeholder: "Enter Your Password",
+    isPwd: true,
+    type: "password",
+  },
+  {
+    name: "Confirm Password",
+    value: "",
+    placeholder: "Enter Your Confirm Password",
+    isPwd: true,
+    type: "password",
+  },
+  { name: "Upload your Picture", file: null, url: "", type: "file" },
 ]);
 
 const isLoading = ref(false);
 
 const onRejected = (file) => {
-  if (file.failedPropValidation) Notify.create({ message: 'Only images allowed', type: 'negative' });
+  if (file.failedPropValidation)
+    Notify.create({ message: "Only images allowed", type: "negative" });
 };
 
 const makeForm = (pic) => {
   const data = new FormData();
-  data.append('file', pic);
-  data.append('upload_preset', 'mevn-chat');
-  data.append('cloud_name', 'dufuzzjly');
+  data.append("file", pic);
+  data.append("upload_preset", "mevn-chat");
+  data.append("cloud_name", "dufuzzjly");
   return data;
 };
 
 const postImage = async (image) => {
-  const url = 'https://api.cloudinary.com/v1_1/dufuzzjly/image/upload';
+  const url = "https://api.cloudinary.com/v1_1/dufuzzjly/image/upload";
   isLoading.value = true;
   try {
     const { data } = await api.post(url, makeForm(image));
-    inputs.value.forEach((input) => { if (input.type === 'file') input.url = data.url; });
-  } catch (err) { console.log(err); }
+    inputs.value.forEach((input) => {
+      if (input.type === "file") input.url = data.url;
+    });
+  } catch (err) {
+    console.log(err);
+  }
   isLoading.value = false;
 };
 
 const submitForm = async (inputs) => {
   const [name, email, password, , image] = inputs;
-  const userData = { name: name.value, email: email.value, password: password.value, pic: image.url };
-  const config = { headers: { 'Content-type': 'application/json' } };
+  const userData = {
+    name: name.value,
+    email: email.value,
+    password: password.value,
+    pic: image.url,
+  };
+  const config = { headers: { "Content-type": "application/json" } };
   try {
     isLoading.value = true;
-    const { data } = await api.post('/api/user', userData, config);
-    localStorage.setItem('userInfo', JSON.stringify(data));
-    router.push({ path: '/chats' });
-    inputs.value.forEach((input) => { input.value = ''; input.file = null; });
-  } catch (err) { console.log(err); }
+    const { data } = await api.post("/api/user", userData, config);
+    localStorage.setItem("userInfo", JSON.stringify(data));
+    router.push({ path: "/chats" });
+    inputs.value.forEach((input) => {
+      input.value = "";
+      input.file = null;
+    });
+  } catch (err) {
+    console.log(err);
+  }
   isLoading.value = false;
 };
 </script>

@@ -15,8 +15,8 @@ q-card.q-pa-md
 
 <script setup>
 import { ref } from 'vue';
-import SignUpComponent from 'src/components/SignUpComponent.vue';
-import LoginComponent from 'src/components/LogInComponent.vue';
+import SignUpComponent from 'src/components/Authentication/SignUpComponent.vue';
+import LoginComponent from 'src/components/Authentication/LogInComponent.vue';
 
 const tab = ref('login');
 const tabs = ref([

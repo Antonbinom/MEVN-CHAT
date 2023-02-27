@@ -35,30 +35,34 @@ q-form(@submit="submitForm(inputs)")
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { api } from '../boot/axios';
-import { useRouter } from 'vue-router';
+import { ref } from "vue";
+import { api } from "src/boot/axios";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 const isLoading = ref(false);
 
 const inputs = ref([
-  { name: 'Email Address', value: '', placeholder: 'Enter Your Email Address' },
-  { name: 'Password', value: '', placeholder: 'Enter Your Password', isPwd: true },
+  { name: "Email Address", value: "", placeholder: "Enter Your Email Address" },
+  { name: "Password", value: "", placeholder: "Enter Your Password", isPwd: true },
 ]);
 
 const submitForm = async () => {
   try {
     isLoading.value = true;
-    const { data } = await api.post('/api/user/login', {
-      email: inputs.value[0].value,
-      password: inputs.value[1].value,
-    }, {
-      headers: { 'Content-type': 'application/json' },
-    });
-    localStorage.setItem('userInfo', JSON.stringify(data));
-    router.push('/chats');
-    inputs.value.forEach(input => input.value = '');
+    const { data } = await api.post(
+      "/api/user/login",
+      {
+        email: inputs.value[0].value,
+        password: inputs.value[1].value,
+      },
+      {
+        headers: { "Content-type": "application/json" },
+      }
+    );
+    localStorage.setItem("userInfo", JSON.stringify(data));
+    router.push("/chats");
+    inputs.value.forEach((input) => (input.value = ""));
   } catch (err) {
     throw new Error(err);
   } finally {

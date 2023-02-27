@@ -7,6 +7,6 @@ q-page.row.justify-evenly.q-py-md
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import FormComponent from 'src/components/FormComponent.vue';
+import { ref } from "vue";
+import FormComponent from "src/components/Authentication/FormComponent.vue";
 </script>

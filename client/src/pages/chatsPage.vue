@@ -1,21 +1,26 @@
 <template lang="pug">
-div
-  div(v-for="chat in chatsData" key="chat._id") {{ chat.chatName }}
+q-layout
+  HeaderComponent
+  DrawerComponent
+  q-page-container.q-pt-lg
+    q-page.q-pa-md
+      div.row.justify-between(style="height: 92vh")
+        ChatsListComponent
+        ChatWindowComponent
+  UserSettingsComponent
 </template>
 
-<script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { api } from '../boot/axios';
+<script setup>
+import { ref } from "vue";
 
-const chatsData = ref([]);
+import HeaderComponent from "src/components/Chats/HeaderComponent.vue";
+import DrawerComponent from "src/components/Chats/DrawerComponent.vue";
+import ChatsListComponent from "src/components/Chats/ChatsListComponent.vue";
+import ChatWindowComponent from "src/components/Chats/ChatWindowComponent.vue";
+import UserSettingsComponent from "src/components/Chats/UserSettingsComponent.vue";
 
-const getChatsData = async (): Promise<void> => {
-  const { data } = await api.get('/api/chat');
+import { useChatsStore } from "src/stores/chatsStore";
 
-  chatsData.value = data;
-};
-
-onMounted(() => {
-  getChatsData();
-});
+// --- Stores ---
+const chatsStore = useChatsStore();
 </script>

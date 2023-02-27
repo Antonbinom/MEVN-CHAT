@@ -1,13 +1,10 @@
 <template lang="pug">
 q-layout.layout(view="lHh Lpr lFf")
-  //- q-header
-  //-   q-toolbar
   q-page-container
     router-view
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <style lang="sass" scoped>
 .layout
