@@ -1,71 +1,48 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { api } from "src/boot/axios";
 
 export const useChatsStore = defineStore("chats", () => {
   // --- States ---
-  const drawer = ref(false);
-  const userSettings = ref(false);
-
-  const chatsList = ref([
-    {
-      name: "anton",
-      email: "anton@mail.ru",
-      url:
-        "https://upload.wikimedia.org/wikipedia/commons/3/3a/Style_-_Wouldn%27t_It_Be_Nice.png",
-    },
-    {
-      name: "katy",
-      email: "anton@mail.ru",
-      url:
-        "https://upload.wikimedia.org/wikipedia/commons/3/3a/Style_-_Wouldn%27t_It_Be_Nice.png",
-    },
-    {
-      name: "Ivan",
-      email: "anton@mail.ru",
-      url:
-        "https://upload.wikimedia.org/wikipedia/commons/3/3a/Style_-_Wouldn%27t_It_Be_Nice.png",
-    },
-    {
-      name: "Marina",
-      email: "anton@mail.ru",
-      url:
-        "https://upload.wikimedia.org/wikipedia/commons/3/3a/Style_-_Wouldn%27t_It_Be_Nice.png",
-    },
-    {
-      name: "Ilia",
-      email: "anton@mail.ru",
-      url:
-        "https://upload.wikimedia.org/wikipedia/commons/3/3a/Style_-_Wouldn%27t_It_Be_Nice.png",
-    },
-    {
-      name: "Help",
-      email: "anton@mail.ru",
-      url:
-        "https://upload.wikimedia.org/wikipedia/commons/3/3a/Style_-_Wouldn%27t_It_Be_Nice.png",
-    },
-  ]);
+  const currentChat = ref({});
+  const chats = ref([]);
 
   // --- Actions ---
-  const setDrawer = () => {
-    drawer.value = !drawer.value;
+  const setChats = async (token: string, _id: string): Promise<void> => {
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await api.post(`/api/chat`, { userId: _id }, config);
+      currentChat.value = data;
+    } catch (err) {
+      throw new Error(err);
+    }
+    getChats(token)
   };
 
-  const setUserSettings = (state: boolean) => {
-    userSettings.value = state;
-  };
-
-  const filterChats = (value: string): any => {
-    return chatsList.value.filter(({ name, email }) =>
-      [name, email].some((str) => str.toLowerCase().includes(value.toLowerCase()))
-    );
+  // --- Getters ---
+  const getChats = async (token: string) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await api.get("/api/chat", config);
+      chats.value = data;
+    } catch (err) {
+      throw new Error(err);
+    }
   };
 
   return {
-    drawer,
-    userSettings,
-    chatsList,
-    setDrawer,
-    filterChats,
-    setUserSettings,
+    currentChat,
+    chats,
+    setChats,
+    getChats,
   };
 });

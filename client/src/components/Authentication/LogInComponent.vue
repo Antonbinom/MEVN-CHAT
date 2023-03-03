@@ -38,7 +38,9 @@ q-form(@submit="submitForm(inputs)")
 import { ref } from "vue";
 import { api } from "src/boot/axios";
 import { useRouter } from "vue-router";
+import { useUserStore } from "src/stores/userStore";
 
+const userStore = useUserStore();
 const router = useRouter();
 const isLoading = ref(false);
 
@@ -61,6 +63,7 @@ const submitForm = async () => {
       }
     );
     localStorage.setItem("userInfo", JSON.stringify(data));
+    userStore.setUser(JSON.parse(localStorage.getItem("userInfo")));
     router.push("/chats");
     inputs.value.forEach((input) => (input.value = ""));
   } catch (err) {

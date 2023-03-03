@@ -1,10 +1,10 @@
 <template lang="pug">
-div.bg-white.q-pa-lg.rounded(style="width:65%")
+div.bg-white.q-pa-lg.rounded.column.no-wrap(style="width:65%")
   div.row.justify-between
     span.text-h5 Chat Name
-    q-btn(@click="addChat" icon="add" color="primary")
+    q-btn(icon="add" color="primary")
 
-  q-scroll-area.q-mt-md
+  q-scroll-area.q-mt-md(style="height: 100%")
     q-list
       q-item(v-for="(message, index) in chats[0].messages" :key="index")
         q-item-section
@@ -17,7 +17,6 @@ div.bg-white.q-pa-lg.rounded(style="width:65%")
 
 <script setup>
 import { ref, computed } from "vue";
-
 const chats = ref([
   {
     title: "Chat 1",

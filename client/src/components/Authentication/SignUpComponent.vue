@@ -43,6 +43,9 @@ import { ref } from "vue";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 import { useRouter } from "vue-router";
+import { useUserStore } from "src/stores/userStore";
+
+const userStore = useUserStore();
 
 const router = useRouter();
 
@@ -113,6 +116,7 @@ const submitForm = async (inputs) => {
     isLoading.value = true;
     const { data } = await api.post("/api/user", userData, config);
     localStorage.setItem("userInfo", JSON.stringify(data));
+    userStore.setUser(JSON.parse(localStorage.getItem("userInfo")));
     router.push({ path: "/chats" });
     inputs.value.forEach((input) => {
       input.value = "";

@@ -7,42 +7,27 @@ div.bg-white.q-pa-lg.rounded(style="width:34%")
   q-list.q-mt-lg.q-pa-md.bg-grey-1.rounded
     q-item(v-for="(chat, index) in chats" :key="index" clickable @click="selectChat(index)").bg-grey-3.q-mb-md.q-py-md.rounded
       q-item-section
-        q-item-label.text-h6 {{ chat.title }}
+        q-item-label.text-h6 {{ chatName(chat) }}
         q-item-label(v-if="lastMessage(chat.messages)")
           span.text-bold {{`${lastMessage(chat.messages).sender}: `}}
           span {{lastMessage(chat.messages).text}}
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onUpdated, onBeforeMount } from "vue";
+import { useChatsStore } from "src/stores/chatsStore";
+import { useUserStore } from "src/stores/userStore";
 
-const chats = ref([
-  {
-    title: "Chat 1",
-    messages: [
-      { sender: "Anton", text: "Hello", timestamp: "2022-01-01 10:00:00" },
-      { sender: "Katy", text: "How are you?", timestamp: "2022-01-01 10:01:00" },
-    ],
-  },
-  {
-    title: "Chat 2",
-    messages: [
-      { sender: "Ivan", text: "Hi", timestamp: "2022-01-01 10:05:00" },
-      {
-        sender: "Anton",
-        text: "I'm fine, thanks. And you?",
-        timestamp: "2022-01-01 10:06:00",
-      },
-    ],
-  },
-  {
-    title: "Chat 3",
-    messages: [],
-  },
-]);
+const chatsStore = useChatsStore();
+const userStore = useUserStore();
 
 const selectedChatIndex = ref(null);
 const newMessage = ref("");
+
+// --- Computed ---
+const chats = computed(() => {
+  return chatsStore.chats;
+});
 
 const selectedChat = computed(() => {
   return selectedChatIndex.value !== null ? chats.value[selectedChatIndex.value] : null;
@@ -66,4 +51,14 @@ const deleteChat = (index) => {
 const lastMessage = (messages) => {
   return messages?.length ? messages[messages.length - 1] : "";
 };
+
+const chatName = (chat) => {
+  const { isGroutChat, chatName, users } = chat;
+  if (isGroutChat) return chatName;
+  return users[1].name;
+};
+
+onBeforeMount(() => {
+  chatsStore.getChats(userStore.user.token);
+});
 </script>

@@ -1,9 +1,9 @@
 <template lang="pug">
-q-dialog(v-model="chatsStore.userSettings")
+q-dialog(v-model="usersStore.userSettings")
   q-card.q-pa-md(style="width: 500px")
     q-card-section
       q-icon.cursor-pointer.absolute-right(
-        @click="chatsStore.setUserSettings(false)"
+        @click="usersStore.setUserSettings(false)"
         name="close"
         size="md")
       q-card-section.text-center
@@ -14,7 +14,7 @@ q-dialog(v-model="chatsStore.userSettings")
         div.text-subtitle1.q-mt-lg anton@mail.ru
       div.row.justify-end
         q-btn(
-          @click="chatsStore.setUserSettings(false)"
+          @click="usersStore.setUserSettings(false)"
           color="primary"
           label='close'
           align="right")
@@ -22,8 +22,8 @@ q-dialog(v-model="chatsStore.userSettings")
 
 <script setup>
 import { ref } from "vue";
-import { useChatsStore } from "src/stores/chatsStore";
+import { useUsersStore } from "src/stores/usersStore";
 
 // --- Stores ---
-const chatsStore = useChatsStore();
+const usersStore = useUsersStore();
 </script>
