@@ -8,6 +8,9 @@ q-layout(@click="closeDrawer")
         ChatsListComponent
         ChatWindowComponent
   UserSettingsComponent
+  ChatSettingsComponent
+  CreateGroupChatComponent
+  //- GroupChatSettingsComponent
 </template>
 
 <script setup>
@@ -19,6 +22,9 @@ import DrawerComponent from "src/components/Chats/DrawerComponent.vue";
 import ChatsListComponent from "src/components/Chats/ChatsListComponent.vue";
 import ChatWindowComponent from "src/components/Chats/ChatWindowComponent.vue";
 import UserSettingsComponent from "src/components/Chats/UserSettingsComponent.vue";
+import ChatSettingsComponent from "src/components/Chats/ChatSettingsComponent.vue";
+import CreateGroupChatComponent from "src/components/Chats/CreateGroupChatComponent.vue";
+// import GroupChatSettingsComponent from "src/components/Chats/GroupChatSettingsComponent.vue";
 
 import { useUserStore } from "src/stores/userStore";
 import { useUsersStore } from "src/stores/usersStore";

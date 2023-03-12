@@ -37,13 +37,11 @@ q-drawer.bg-white(
 <script setup>
 import { ref, computed } from "vue";
 import { useUsersStore } from "src/stores/usersStore";
-import { useUserStore } from "src/stores/userStore";
 import { useChatsStore } from "src/stores/chatsStore";
 
 // --- Stores ---
 const chatsStore = useChatsStore();
 const usersStore = useUsersStore();
-const userStore = useUserStore();
 
 // --- Computeds ---
 const search = computed({
@@ -52,18 +50,22 @@ const search = computed({
 });
 
 const users = computed(() => {
-  return usersStore.usersList;
-});
+  const groupChatUserIds = new Set(
+    chatsStore.chats
+      .filter((chat) => !chat.isGroupChat)
+      .flatMap((chat) => chat.users.map((user) => user._id))
+  );
 
-const user = computed(() => userStore.user);
+  return usersStore.usersList.filter((user) => !groupChatUserIds.has(user._id));
+});
 
 // --- Methods ---
 const findUsers = () => {
-  return usersStore.setUsersList(user);
+  usersStore.setUsersList();
 };
 
 const accessChat = ({ _id }) => {
-  chatsStore.setChats(user.value.token, _id);
+  chatsStore.setChats(_id);
   usersStore.setDrawer(false);
   usersStore.setSearchValue("");
 };

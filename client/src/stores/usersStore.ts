@@ -1,55 +1,59 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { api } from "src/boot/axios";
+import { useUserStore } from "src/stores/userStore";
 
 export const useUsersStore = defineStore("users", () => {
+  const userStore = useUserStore();
+  const user = computed(() => userStore.user);
   // --- States ---
   const drawer = ref(false);
-  const userSettings = ref(false);
   const searchValue = ref("");
   const usersList = ref([]);
-
+  const isLoading = ref(false);
   // --- Actions ---
   const setDrawer = (value: boolean): void => {
     drawer.value = value;
-  };
-
-  const setUserSettings = (state: boolean): void => {
-    userSettings.value = state;
+    searchValue.value = "";
+    usersList.value = [];
   };
 
   const setSearchValue = (value: string): void => {
     searchValue.value = value;
   };
 
-  const setUsersList = async (user: any): Promise<void> => {
-    const { token } = user.value;
+  const setUsersList = async (): Promise<void> => {
+    if (!searchValue.value || !user.value) {
+      usersList.value = [];
+      return;
+    }
+    isLoading.value = true;
+    // const { token } = user.value;
     try {
       const config = {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.value.token}`,
         },
       };
       const { data } = await api.get(`/api/user?search=${searchValue.value}`, config);
 
       usersList.value = data.filter(({ name, email }: { name: string; email: string }) =>
-        [name, email].some((str) =>
+        [name, email.split("@")[0]].some((str) =>
           str.toLowerCase().includes(searchValue.value.toLowerCase())
         )
       );
     } catch (err) {
       throw new Error(err);
     }
+    isLoading.value = false;
   };
-
   return {
     drawer,
-    userSettings,
     usersList,
     searchValue,
+    isLoading,
     setDrawer,
     setUsersList,
-    setUserSettings,
     setSearchValue,
   };
 });

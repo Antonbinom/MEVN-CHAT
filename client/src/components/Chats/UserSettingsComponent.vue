@@ -1,29 +1,34 @@
 <template lang="pug">
-q-dialog(v-model="usersStore.userSettings")
+q-dialog(v-model="userStore.userSettings")
   q-card.q-pa-md(style="width: 500px")
     q-card-section
       q-icon.cursor-pointer.absolute-right(
-        @click="usersStore.setUserSettings(false)"
+        @click="userStore.setUserSettings(false)"
         name="close"
         size="md")
       q-card-section.text-center
-        span.text-h4 Anton
+        span.text-h4 {{user.name}}
       q-card-section.text-center
         q-avatar(size="150px")
-          img(src="https://cdn.quasar.dev/img/avatar4.jpg")
-        div.text-subtitle1.q-mt-lg anton@mail.ru
+          img(:src="user.pic")
+        div.text-subtitle1.q-mt-lg {{user.email}}
       div.row.justify-end
         q-btn(
-          @click="usersStore.setUserSettings(false)"
+          @click="userStore.setUserSettings(false)"
           color="primary"
           label='close'
           align="right")
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useUsersStore } from "src/stores/usersStore";
+import { computed } from "vue";
+import { useUserStore } from "src/stores/userStore";
 
 // --- Stores ---
-const usersStore = useUsersStore();
+const userStore = useUserStore();
+
+// --- Computeds ---
+const user = computed(() => {
+  return userStore.user;
+});
 </script>

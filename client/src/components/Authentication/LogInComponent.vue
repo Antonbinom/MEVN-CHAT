@@ -72,8 +72,4 @@ const submitForm = async () => {
     isLoading.value = false;
   }
 };
-
-const getGuestUserCredentials = () => {
-  // function to get guest user credentials
-};
 </script>
