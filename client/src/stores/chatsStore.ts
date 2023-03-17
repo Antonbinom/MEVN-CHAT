@@ -38,7 +38,6 @@ export const useChatsStore = defineStore("chats", () => {
   const addChatParticipants = (user: object) => {
     if (chatParticipants.value.includes(user)) return;
     chatParticipants.value.push(user);
-    console.log(chatParticipants.value);
   };
 
   const removeChatParticipants = (user: object) => {
