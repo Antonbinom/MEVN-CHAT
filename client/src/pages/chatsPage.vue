@@ -2,7 +2,7 @@
 q-layout(@click="closeDrawer")
   HeaderComponent
   DrawerComponent
-  q-page-container.q-pt-lg
+  q-page-container
     q-page.q-pa-md
       div.row.justify-between(style="height: 92vh")
         ChatsListComponent
@@ -28,9 +28,11 @@ import CreateGroupChatComponent from "src/components/Chats/CreateGroupChatCompon
 
 import { useUserStore } from "src/stores/userStore";
 import { useUsersStore } from "src/stores/usersStore";
+import { useChatsStore } from "src/stores/chatsStore";
 // --- Stores ---
 const userStore = useUserStore();
 const usersStore = useUsersStore();
+const chatsStore = useChatsStore();
 
 const router = useRouter();
 
@@ -47,6 +49,9 @@ const closeDrawer = (event) => {
 onBeforeMount(() => {
   if (!localStorage.getItem("userInfo")) router.push("/");
   userStore.setUser(JSON.parse(localStorage.getItem("userInfo")));
+  if (localStorage.getItem("lastChatId")) {
+    chatsStore.setSelectedChat(localStorage.getItem("lastChatId"));
+  }
 
   document.addEventListener("click", closeDrawer);
 });

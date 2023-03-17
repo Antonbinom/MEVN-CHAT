@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { api } from "src/boot/axios";
 import { useUsersStore } from "./usersStore";
 import { useUserStore } from "./userStore";
+import { AxiosRequestConfig } from "axios";
 
 export const useChatsStore = defineStore("chats", () => {
   const usersStore = useUsersStore();
@@ -16,17 +17,17 @@ export const useChatsStore = defineStore("chats", () => {
   const selectedChat = ref("");
   const isChatSettingsOpen = ref(false);
   const isAddChatOpen = ref(false);
+  const chatMessages = ref([]);
 
   // --- Actions ---
   const setChats = async (_id: string): Promise<void> => {
     try {
-      const config = {
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${user.value.token}`,
-        },
-      };
-      const { data } = await api.post(`/api/chat`, { userId: _id }, config);
+      const { data } = await fetch(
+        "POST",
+        "/api/chat",
+        { userId: _id },
+        "'application/json-patch+json'"
+      );
       selectedChat.value = data._id;
     } catch (err) {
       throw new Error(err);
@@ -46,20 +47,10 @@ export const useChatsStore = defineStore("chats", () => {
 
   const addGroupChatParticipant = async (userId: string) => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.value.token}`,
-        },
-      };
-
-      await api.put(
-        "/api/chat/groupadd",
-        {
-          chatId: selectedChat.value,
-          userId: userId,
-        },
-        config
-      );
+      fetch("PUT", "/api/chat/groupadd", {
+        chatId: selectedChat.value,
+        userId: userId,
+      });
       getChats();
     } catch (err) {
       throw new Error(err);
@@ -68,21 +59,10 @@ export const useChatsStore = defineStore("chats", () => {
 
   const removeGroupChatParticipant = async (userId: string) => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.value.token}`,
-        },
-      };
-
-      await api.put(
-        "/api/chat/groupremove",
-        {
-          chatId: selectedChat.value,
-          userId: userId,
-        },
-        config
-      );
-      // selectedChat.value = data._id;
+      fetch("PUT", "/api/chat/groupremove", {
+        chatId: selectedChat.value,
+        userId: userId,
+      });
       getChats();
     } catch (err) {
       throw new Error(err);
@@ -92,20 +72,11 @@ export const useChatsStore = defineStore("chats", () => {
   const addNewChat = async (chatName: string) => {
     if (!chatName || !chatParticipants.value.length) return;
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.value.token}`,
-        },
-      };
       const users = chatParticipants.value.map(({ _id }) => _id);
-      const { data } = await api.post(
-        "/api/chat/group",
-        {
-          name: chatName,
-          users: JSON.stringify(users),
-        },
-        config
-      );
+      const { data } = await fetch("POST", "/api/chat/group", {
+        name: chatName,
+        users: JSON.stringify(users),
+      });
       chats.value = [data, ...chats.value];
       selectedChat.value = data._id;
       isAddChatOpen.value = false;
@@ -116,17 +87,15 @@ export const useChatsStore = defineStore("chats", () => {
 
   const setSelectedChat = (id: string) => {
     selectedChat.value = id;
+    setChatMessages(selectedChat.value);
+    localStorage.setItem("lastChatId", selectedChat.value);
   };
 
   // --- Getters ---
   const getChats = async () => {
+
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.value.token}`,
-        },
-      };
-      const { data } = await api.get("/api/chat", config);
+      const { data } = await fetch("GET", "/api/chat");
       chats.value = data;
     } catch (err) {
       throw new Error(err);
@@ -135,21 +104,10 @@ export const useChatsStore = defineStore("chats", () => {
 
   const setNewChatName = async (chatName: string) => {
     try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.value.token}`,
-        },
-      };
-
-      await api.put(
-        "/api/chat/rename",
-        {
-          chatId: selectedChat.value,
-          chatName: chatName,
-        },
-        config
-      );
-      // selectedChat.value = data._id;
+      await fetch("PUT", "/api/chat/rename", {
+        chatId: selectedChat.value,
+        chatName: chatName,
+      });
       getChats();
     } catch (err) {
       throw new Error(err);
@@ -168,17 +126,64 @@ export const useChatsStore = defineStore("chats", () => {
     usersStore.setUsersList();
     chatParticipants.value = [];
   };
+
+  const addNewMessage = async (textMessage: string) => {
+    const { data } = await fetch("POST", "/api/message", {
+      content: textMessage,
+      chatId: selectedChat.value,
+    });
+    // chatMessages.value = [...chatMessages.value, data];
+    setChatMessages(selectedChat.value);
+  };
+
+  const setChatMessages = async (chatId: string) => {
+    if (!selectedChat.value) return;
+    try {
+      const { data } = await fetch("GET", `/api/message/${chatId}`);
+      chatMessages.value = data;
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
+
+  // --- Methods ---
+  const fetch = async (
+    method: string,
+    url: string,
+    data?: object,
+    contentType?: string
+  ) => {
+    const config: object = {
+      headers: {
+        Authorization: `Bearer ${user.value.token}`,
+      },
+    };
+    if (contentType) {
+      config.headers["Content-type"] = contentType;
+    }
+    const params: AxiosRequestConfig = {
+      method,
+      url,
+      headers: config.headers,
+      data,
+    };
+    return await api(params);
+  };
+
   return {
     chats,
     selectedChat,
+    chatMessages,
     isAddChatOpen,
     chatParticipants,
     isChatSettingsOpen,
     setChats,
     getChats,
     addNewChat,
+    addNewMessage,
     setNewChatName,
     setSelectedChat,
+    setChatMessages,
     setIsAddChatOpen,
     addChatParticipants,
     setIsChatSettingsOpen,

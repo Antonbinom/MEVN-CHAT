@@ -4,14 +4,15 @@ div.bg-white.q-pa-lg.rounded(style="width:34%")
     span.text-h5 Chat List
     q-btn(@click="addChat" label="New Group Chat" icon-right="add" color="primary")
 
-  q-list(v-if="chats.length").q-mt-lg.q-pa-md.bg-grey-1.rounded
-    q-item(v-for="(chat, index) in chats" :key="index" clickable @click="selectChat(chat._id)" :class=" isSelectedChat(chat) ? 'bg-teal-5 text-white' : 'bg-grey-3'"
-    ).q-mb-md.q-py-md.rounded
-      q-item-section
-        q-item-label.text-h6 {{ getChatName(chat) }}
-        q-item-label(v-if="lastMessage(chat.messages)")
-          span.text-bold {{`${lastMessage(chat.messages).sender}: `}}
-          span {{lastMessage(chat.messages).text}}
+  q-scroll-area.q-mt-lg(style="height: 95%")
+    q-list(v-if="chats.length").q-pa-md.bg-grey-1.rounded
+      q-item(v-for="(chat, index) in chats" :key="index" clickable @click="selectChat(chat._id)" :class=" isSelectedChat(chat) ? 'bg-teal-5 text-white' : 'bg-grey-3'"
+      ).q-mb-md.q-py-md.rounded
+        q-item-section
+          q-item-label.text-h6 {{ getChatName(chat) }}
+          q-item-label(v-if="lastMessage(chat.messages)")
+            span.text-bold {{`${lastMessage(chat.messages).sender}: `}}
+            span {{lastMessage(chat.messages).text}}
 </template>
 
 <script setup>
