@@ -4,6 +4,7 @@ import { api } from "src/boot/axios";
 import { useUsersStore } from "./usersStore";
 import { useUserStore } from "./userStore";
 import { AxiosRequestConfig } from "axios";
+import { socket } from "src/boot/socket";
 
 export const useChatsStore = defineStore("chats", () => {
   const usersStore = useUsersStore();
@@ -18,7 +19,7 @@ export const useChatsStore = defineStore("chats", () => {
   const isChatSettingsOpen = ref(false);
   const isAddChatOpen = ref(false);
   const chatMessages = ref([]);
-
+  const isTyping = ref(false);
   // --- Actions ---
   const setChats = async (_id: string): Promise<void> => {
     try {
@@ -79,6 +80,7 @@ export const useChatsStore = defineStore("chats", () => {
       });
       chats.value = [data, ...chats.value];
       selectedChat.value = data._id;
+      setSelectedChat(data._id);
       isAddChatOpen.value = false;
     } catch (err) {
       throw new Error(err);
@@ -88,12 +90,12 @@ export const useChatsStore = defineStore("chats", () => {
   const setSelectedChat = (id: string) => {
     selectedChat.value = id;
     setChatMessages(selectedChat.value);
+    socket.emit("join chat", id);
     localStorage.setItem("lastChatId", selectedChat.value);
   };
 
   // --- Getters ---
   const getChats = async () => {
-
     try {
       const { data } = await fetch("GET", "/api/chat");
       chats.value = data;
@@ -132,7 +134,7 @@ export const useChatsStore = defineStore("chats", () => {
       content: textMessage,
       chatId: selectedChat.value,
     });
-    // chatMessages.value = [...chatMessages.value, data];
+    socket.emit('new message', data)
     setChatMessages(selectedChat.value);
   };
 
@@ -140,11 +142,33 @@ export const useChatsStore = defineStore("chats", () => {
     if (!selectedChat.value) return;
     try {
       const { data } = await fetch("GET", `/api/message/${chatId}`);
+      socket.on('message received', (newMessageReceived) => {
+        if (!selectedChat.value || selectedChat.value !== newMessageReceived.chat._id) {
+          console.log('Error');
+        } else {
+          setChatMessages(chatId)
+        }
+      })
       chatMessages.value = data;
     } catch (err) {
       throw new Error(err);
     }
   };
+
+  const setIsTyping = (value: boolean) => {
+    if (value) {
+      socket.emit('typing', selectedChat.value)
+      socket.on('typing', () => {
+        isTyping.value = true
+      })
+    } else {
+      socket.emit('stop typing', selectedChat.value)
+      socket.on('stop typing', () => {
+        isTyping.value = false
+      });
+    }
+
+  }
 
   // --- Methods ---
   const fetch = async (
@@ -170,8 +194,19 @@ export const useChatsStore = defineStore("chats", () => {
     return await api(params);
   };
 
+  socket.on('typing', () => {
+    isTyping.value = true;
+    console.log(isTyping.value);
+  });
+
+  socket.on('stop typing', () => {
+    isTyping.value = false;
+    console.log(isTyping.value);
+  });
+
   return {
     chats,
+    isTyping,
     selectedChat,
     chatMessages,
     isAddChatOpen,
@@ -180,6 +215,7 @@ export const useChatsStore = defineStore("chats", () => {
     setChats,
     getChats,
     addNewChat,
+    setIsTyping,
     addNewMessage,
     setNewChatName,
     setSelectedChat,

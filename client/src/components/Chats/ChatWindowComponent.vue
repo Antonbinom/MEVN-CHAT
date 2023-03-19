@@ -18,16 +18,21 @@ div.bg-white.q-pa-lg.rounded.column.no-wrap(v-if="chatsStore.chats.length && sel
           :sent="user._id === message.sender._id"
           :bg-color="user._id === message.sender._id ? 'amber-7' : 'primary'"
       )
-
-  q-input.q-mt-md.outlined(v-model="newMessage" @keyup.enter="sendMessage" label="New message" dense)
+      div.q-ml-lg(style="height: 36px")
+        q-spinner-dots(v-if="isTyping" size="2rem")
+  q-input.q-mt-md.outlined(
+    v-model="newMessage"
+    @keyup.enter="sendMessage"
+    label="New message" dense)
 </template>
 
 <script setup>
+import { debounce } from "quasar";
 import { ref, computed, watch, onMounted } from "vue";
 import { useChatsStore } from "src/stores/chatsStore";
 import { useUserStore } from "src/stores/userStore";
 import { getChatName } from "src/hooks/getChatName";
-
+// import { socket } from "src/boot/socket";
 const chatsStore = useChatsStore();
 const userStore = useUserStore();
 
@@ -48,13 +53,28 @@ const chatMessages = computed(() => {
   return chatsStore.chatMessages;
 });
 
+const isTyping = computed(() => {
+  return chatsStore.isTyping;
+});
+
 watch(
   () => chatsStore.chatMessages.length,
   () => {
     animateScroll();
-    // scrollToBottom();
   }
 );
+
+watch(newMessage, () => {
+  chatsStore.setIsTyping(true);
+});
+
+watch(
+  newMessage,
+  debounce(() => {
+    chatsStore.setIsTyping(false);
+  }, 500)
+);
+
 // --- Methods ---
 const openChatSettings = () => {
   chatsStore.setIsChatSettingsOpen(true);
@@ -65,25 +85,27 @@ const openChatSettings = () => {
 //   newMessage.value = "";
 // };
 
-// const scrollToBottom = () => {
-//   const scrollArea = this.$refs.scrollAreaRef;
-//   const maxHeight = scrollArea.$el.scrollHeight - scrollArea.$el.clientHeight;
-//   scrollArea.scrollTo({ top: maxHeight });
-// };
-const animateScroll = () => {
-  const { verticalSize } = scrollAreaRef.value.getScroll();
-  scrollAreaRef.value.setScrollPosition("vertical", verticalSize, 300);
-};
-
 const sendMessage = () => {
   if (!selectedChat.value || !newMessage.value) return;
   chatsStore.addNewMessage(newMessage.value);
   newMessage.value = "";
 };
 
+// const typingHandler = () => {
+//   debugger;
+//   chatsStore.setIsTyping(true);
+//   setTimeout(() => {
+//     chatsStore.setIsTyping(false);
+//   }, 3000);
+// };
+
+const animateScroll = () => {
+  const { verticalSize } = scrollAreaRef.value?.getScroll();
+  scrollAreaRef.value.setScrollPosition("vertical", verticalSize, 300);
+};
+
 onMounted(() => {
   if (scrollAreaRef.value) {
-    const { verticalSize } = scrollAreaRef.value?.getScroll();
     animateScroll();
   }
 });

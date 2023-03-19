@@ -2,9 +2,9 @@
 div.bg-white.q-pa-lg.rounded(style="width:34%")
   div.row.justify-between
     span.text-h5 Chat List
-    q-btn(@click="addChat" label="New Group Chat" icon-right="add" color="primary")
+    q-btn(@click="addChatOpen" label="New Group Chat" icon-right="add" color="primary")
 
-  q-scroll-area.q-mt-lg(style="height: 95%")
+  q-scroll-area.q-mt-lg(ref="scrollArea" style="height: 95%")
     q-list(v-if="chats.length").q-pa-md.bg-grey-1.rounded
       q-item(v-for="(chat, index) in chats" :key="index" clickable @click="selectChat(chat._id)" :class=" isSelectedChat(chat) ? 'bg-teal-5 text-white' : 'bg-grey-3'"
       ).q-mb-md.q-py-md.rounded
@@ -16,19 +16,28 @@ div.bg-white.q-pa-lg.rounded(style="width:34%")
 </template>
 
 <script setup>
-import { ref, computed, onBeforeMount } from "vue";
+import { ref, computed, onBeforeMount, watch } from "vue";
 import { useChatsStore } from "src/stores/chatsStore";
 import { getChatName } from "src/hooks/getChatName";
 
 const chatsStore = useChatsStore();
 
+// --- Refs ---
+const scrollArea = ref(null);
 // --- Computed ---
 const chats = computed(() => {
   return chatsStore.chats;
 });
 
+watch(
+  () => chats.value.length,
+  () => {
+    scrollArea.value?.setScrollPosition("vertical", 0, 300);
+  }
+);
+
 // --- Methods ---
-const addChat = () => {
+const addChatOpen = () => {
   chatsStore.setIsAddChatOpen(true);
 };
 

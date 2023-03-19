@@ -14,8 +14,9 @@ q-layout(@click="closeDrawer")
 </template>
 
 <script setup>
-import { onBeforeMount, onBeforeUnmount, ref } from "vue";
+import { onBeforeMount, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { socket } from "src/boot/socket";
 
 import HeaderComponent from "src/components/Chats/HeaderComponent.vue";
 import DrawerComponent from "src/components/Chats/DrawerComponent.vue";
@@ -52,10 +53,15 @@ onBeforeMount(() => {
   if (localStorage.getItem("lastChatId")) {
     chatsStore.setSelectedChat(localStorage.getItem("lastChatId"));
   }
-
   document.addEventListener("click", closeDrawer);
 });
 
+onMounted(() => {
+  socket.emit("setup", userStore.user);
+  socket.on("connected", () => {
+    console.log("SocketConnected");
+  });
+});
 onBeforeUnmount(() => {
   document.removeEventListener("click", closeDrawer);
 });
