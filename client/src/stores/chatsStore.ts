@@ -150,6 +150,7 @@ export const useChatsStore = defineStore("chats", () => {
         }
       })
       chatMessages.value = data;
+      getChats();
     } catch (err) {
       throw new Error(err);
     }
@@ -196,12 +197,10 @@ export const useChatsStore = defineStore("chats", () => {
 
   socket.on('typing', () => {
     isTyping.value = true;
-    console.log(isTyping.value);
   });
 
   socket.on('stop typing', () => {
     isTyping.value = false;
-    console.log(isTyping.value);
   });
 
   return {
