@@ -5,7 +5,6 @@
   "productName": "MEVN Chat",
   "author": "antonbinom <protest_the_hero@mail.ru>",
   "private": true,
-  "proxy": "http://127.0.0.1:5000",
   "scripts": {
     "dev": "NODE_ENV=develop quasar dev",
     "lint": "eslint --ext .js,.ts,.vue ./",
@@ -13,11 +12,16 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@feathersjs/authentication-client": "^4.5.15",
+    "@feathersjs/feathers": "^4.5.15",
+    "@feathersjs/socketio-client": "^4.5.15",
     "@quasar/extras": "^1.0.0",
     "axios": "^0.21.1",
-    "pinia": "^2.0.11",
+    "feathers-hooks-common": "^6.1.5",
+    "feathers-pinia": "^1.0.0-pre.3",
+    "pinia": "^2.0.33",
     "quasar": "^2.6.0",
-    "socket.io-client": "^4.6.1",
+    "socket.io-client": "2.3.0",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0"
   },

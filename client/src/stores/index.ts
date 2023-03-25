@@ -1,7 +1,8 @@
 import { store } from 'quasar/wrappers'
 import { createPinia } from 'pinia'
 import { Router } from 'vue-router';
-
+import { setupFeathersPinia } from 'feathers-pinia'
+import { api } from '../feathers'
 /*
  * When adding new properties to stores, you should also
  * extend the `PiniaCustomProperties` interface.
@@ -29,4 +30,13 @@ export default store((/* { ssrContext } */) => {
   // pinia.use(SomePiniaPlugin)
 
   return pinia
+})
+
+export const { defineStore, BaseModel } = setupFeathersPinia({
+  clients: { api },
+  idField: 'id',
+  whitelist: [
+    '$limit',
+    '$paginate',
+  ],
 })

@@ -23,9 +23,7 @@ q-form(@submit="submitForm(inputs)")
       :type="input.type"
       max-files="1"
       counter
-      accept="image/*"
-      lazy-rules
-      :rules="[() => input.file !== null || 'Please add your image']"
+
     )
       template(v-slot:prepend)
         q-icon(name="cloud_upload" @click.stop.prevent)
@@ -44,11 +42,17 @@ import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 import { useRouter } from "vue-router";
 import { useUserStore } from "src/stores/userStore";
-
-const userStore = useUserStore();
-
+import { useUsers } from "src/stores/services/users";
+import { useAuth } from "src/stores/services/auth";
+// import { api } from "src/feathers";
 const router = useRouter();
 
+// --- Stores ---
+const authStore = useAuth();
+const userStore = useUserStore();
+const usersServiceStore = useUsers();
+
+// --- Refs ---
 const inputs = ref([
   { name: "Name", value: "", placeholder: "Enter Your Name", type: "text" },
   {
@@ -65,17 +69,18 @@ const inputs = ref([
     type: "password",
   },
   {
-    name: "Confirm Password",
-    value: "",
-    placeholder: "Enter Your Confirm Password",
+    name: 'Confirm Password',
+    value: '',
+    placeholder: 'Enter Your Confirm Password',
     isPwd: true,
-    type: "password",
+    type: 'password',
   },
-  { name: "Upload your Picture", file: null, url: "", type: "file" },
+  { name: 'Upload your Picture', file: null, url: '', type: 'file' },
 ]);
 
 const isLoading = ref(false);
 
+// --- Methods ---
 const onRejected = (file) => {
   if (file.failedPropValidation)
     Notify.create({ message: "Only images allowed", type: "negative" });
@@ -103,6 +108,20 @@ const postImage = async (image) => {
   isLoading.value = false;
 };
 
+const createUser = async (data) => {
+  const Users = await usersServiceStore.Model;
+  const user = await new Users(data);
+  await user.save();
+};
+
+const authUser = async ({ email, password }) => {
+  await authStore.authenticate({
+    strategy: "local",
+    email: email,
+    password: password,
+  });
+};
+
 const submitForm = async (inputs) => {
   const [name, email, password, , image] = inputs;
   const userData = {
@@ -111,12 +130,15 @@ const submitForm = async (inputs) => {
     password: password.value,
     pic: image.url,
   };
-  const config = { headers: { "Content-type": "application/json" } };
   try {
     isLoading.value = true;
-    const { data } = await api.post("/api/user", userData, config);
-    localStorage.setItem("userInfo", JSON.stringify(data));
-    userStore.setUser(JSON.parse(localStorage.getItem("userInfo")));
+
+    await createUser(userData);
+    await authUser(userData);
+
+    // const { data } = await api.post("/api/user", userData, config);
+    // localStorage.setItem("userInfo", JSON.stringify(data));
+    // userStore.setUser(JSON.parse(localStorage.getItem("userInfo")));
     router.push({ path: "/chats" });
     inputs.value.forEach((input) => {
       input.value = "";
@@ -127,4 +149,14 @@ const submitForm = async (inputs) => {
   }
   isLoading.value = false;
 };
+
+// // --- Hooks ---
+// onBeforeMount(async () => {
+//   if (localStorage.getItem("feathers-jwt")) {
+//     await authStore.authenticate({
+//       strategy: "jwt",
+//       accessToken: localStorage.getItem("feathers-jwt"),
+//     });
+//   }
+// });
 </script>

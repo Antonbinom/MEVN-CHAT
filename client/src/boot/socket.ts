@@ -7,7 +7,7 @@ declare module "@vue/runtime-core" {
   }
 }
 
-const socket = io('http://localhost:5000', {
+const socket = io('http://localhost:3030', {
   reconnectionDelayMax: 10000,
   transports: ["websocket"],
 });
