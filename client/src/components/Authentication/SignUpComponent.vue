@@ -1,5 +1,5 @@
 <template lang="pug">
-q-form(@submit="submitForm(inputs)")
+q-form(@submit="submitForm()")
   div(v-for="(input, index) in inputs")
     q-badge.text-weight-bold.q-mb-sm(color="transparent" text-color="black") {{ `${input.name} *` }}
     q-input(
@@ -37,7 +37,7 @@ q-form(@submit="submitForm(inputs)")
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onBeforeMount, reactive, ref } from "vue";
 import { api } from "src/boot/axios";
 import { Notify } from "quasar";
 import { useRouter } from "vue-router";
@@ -53,7 +53,7 @@ const userStore = useUserStore();
 const usersServiceStore = useUsers();
 
 // --- Refs ---
-const inputs = ref([
+const inputs = reactive([
   { name: "Name", value: "", placeholder: "Enter Your Name", type: "text" },
   {
     name: "Email Address",
@@ -69,13 +69,13 @@ const inputs = ref([
     type: "password",
   },
   {
-    name: 'Confirm Password',
-    value: '',
-    placeholder: 'Enter Your Confirm Password',
+    name: "Confirm Password",
+    value: "",
+    placeholder: "Enter Your Confirm Password",
     isPwd: true,
-    type: 'password',
+    type: "password",
   },
-  { name: 'Upload your Picture', file: null, url: '', type: 'file' },
+  { name: "Upload your Picture", file: null, url: "", type: "file" },
 ]);
 
 const isLoading = ref(false);
@@ -99,7 +99,7 @@ const postImage = async (image) => {
   isLoading.value = true;
   try {
     const { data } = await api.post(url, makeForm(image));
-    inputs.value.forEach((input) => {
+    inputs.forEach((input) => {
       if (input.type === "file") input.url = data.url;
     });
   } catch (err) {
@@ -122,7 +122,7 @@ const authUser = async ({ email, password }) => {
   });
 };
 
-const submitForm = async (inputs) => {
+const submitForm = async () => {
   const [name, email, password, , image] = inputs;
   const userData = {
     name: name.value,
@@ -151,12 +151,12 @@ const submitForm = async (inputs) => {
 };
 
 // // --- Hooks ---
-// onBeforeMount(async () => {
-//   if (localStorage.getItem("feathers-jwt")) {
-//     await authStore.authenticate({
-//       strategy: "jwt",
-//       accessToken: localStorage.getItem("feathers-jwt"),
-//     });
-//   }
-// });
+onBeforeMount(async () => {
+  if (localStorage.getItem("feathers-jwt")) {
+    await authStore.authenticate({
+      strategy: "jwt",
+      accessToken: localStorage.getItem("feathers-jwt"),
+    });
+  }
+});
 </script>
