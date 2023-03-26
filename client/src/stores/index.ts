@@ -2,7 +2,7 @@ import { store } from 'quasar/wrappers'
 import { createPinia } from 'pinia'
 import { Router } from 'vue-router';
 import { setupFeathersPinia } from 'feathers-pinia'
-import { api } from '../feathers'
+import { api } from 'src/feathers'
 /*
  * When adding new properties to stores, you should also
  * extend the `PiniaCustomProperties` interface.

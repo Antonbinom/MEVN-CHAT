@@ -30,10 +30,13 @@ import CreateGroupChatComponent from "src/components/Chats/CreateGroupChatCompon
 import { useUserStore } from "src/stores/userStore";
 import { useUsersStore } from "src/stores/usersStore";
 import { useChatsStore } from "src/stores/chatsStore";
+import { useAuth } from "src/stores/services/auth";
+
 // --- Stores ---
 const userStore = useUserStore();
 const usersStore = useUsersStore();
 const chatsStore = useChatsStore();
+const authStore = useAuth();
 
 const router = useRouter();
 
@@ -47,20 +50,33 @@ const closeDrawer = (event) => {
   }
 };
 
-onBeforeMount(() => {
-  if (!localStorage.getItem("userInfo")) router.push("/");
-  userStore.setUser(JSON.parse(localStorage.getItem("userInfo")));
-  if (localStorage.getItem("lastChatId")) {
-    chatsStore.setSelectedChat(localStorage.getItem("lastChatId"));
+// onBeforeMount(() => {
+//   if (!localStorage.getItem("userInfo")) router.push("/");
+//   userStore.setUser(JSON.parse(localStorage.getItem("userInfo")));
+//   if (localStorage.getItem("lastChatId")) {
+//     chatsStore.setSelectedChat(localStorage.getItem("lastChatId"));
+//   }
+//   document.addEventListener("click", closeDrawer);
+// });
+onBeforeMount(async () => {
+  if (localStorage.getItem("feathers-jwt")) {
+    await authStore.authenticate({
+      strategy: "jwt",
+      accessToken: localStorage.getItem("feathers-jwt"),
+    });
   }
-  document.addEventListener("click", closeDrawer);
 });
-
 onMounted(() => {
-  socket.emit("setup", userStore.user);
-  socket.on("connected", () => {
-    console.log("SocketConnected");
-  });
+  // socket.emit("setup", userStore.user);
+  // socket.on("connected", () => {
+  //   console.log("SocketConnected");
+  // });
+  // if (localStorage.getItem("feathers-jwt")) {
+  //   authStore.authenticate({
+  //     strategy: "jwt",
+  //     accessToken: localStorage.getItem("feathers-jwt"),
+  //   });
+  // }
 });
 onBeforeUnmount(() => {
   document.removeEventListener("click", closeDrawer);

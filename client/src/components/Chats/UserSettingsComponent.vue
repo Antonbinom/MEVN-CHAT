@@ -7,11 +7,11 @@ q-dialog(v-model="userStore.userSettings")
         name="close"
         size="md")
       q-card-section.text-center
-        span.text-h4 {{user.name}}
+        span.text-h4 {{authUser.name}}
       q-card-section.text-center
         q-avatar(size="150px")
-          img(:src="user.pic")
-        div.text-subtitle1.q-mt-lg {{user.email}}
+          img(:src="authUser.pic")
+        div.text-subtitle1.q-mt-lg {{authUser.email}}
       div.row.justify-end
         q-btn(
           @click="userStore.setUserSettings(false)"
@@ -23,12 +23,12 @@ q-dialog(v-model="userStore.userSettings")
 <script setup>
 import { computed } from "vue";
 import { useUserStore } from "src/stores/userStore";
+import { useAuth } from "src/stores/services/auth";
 
 // --- Stores ---
 const userStore = useUserStore();
+const authStore = useAuth();
 
 // --- Computeds ---
-const user = computed(() => {
-  return userStore.user;
-});
+const authUser = computed(() => authStore.getUser);
 </script>

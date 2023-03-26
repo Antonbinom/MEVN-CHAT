@@ -64,9 +64,9 @@ const lastMessage = (messages) => {
   return messages?.length ? messages[messages.length - 1] : "";
 };
 
-onBeforeMount(() => {
-  chatsStore.getChats();
-});
+// onBeforeMount(() => {
+//   chatsStore.getChats();
+// });
 </script>
 
 <style lang="sass" scoped>

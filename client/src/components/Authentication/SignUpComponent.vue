@@ -137,10 +137,10 @@ const submitForm = async () => {
     await authUser(userData);
 
     // const { data } = await api.post("/api/user", userData, config);
-    // localStorage.setItem("userInfo", JSON.stringify(data));
-    // userStore.setUser(JSON.parse(localStorage.getItem("userInfo")));
+    // localStorage.setItem("userInfo", JSON.stringify(userData));
+    // authStore.setUser(JSON.parse(localStorage.getItem("userInfo")));
     router.push({ path: "/chats" });
-    inputs.value.forEach((input) => {
+    inputs.forEach((input) => {
       input.value = "";
       input.file = null;
     });
@@ -151,12 +151,12 @@ const submitForm = async () => {
 };
 
 // // --- Hooks ---
-onBeforeMount(async () => {
-  if (localStorage.getItem("feathers-jwt")) {
-    await authStore.authenticate({
-      strategy: "jwt",
-      accessToken: localStorage.getItem("feathers-jwt"),
-    });
-  }
-});
+// onBeforeMount(async () => {
+//   if (localStorage.getItem("feathers-jwt")) {
+//     await authStore.authenticate({
+//       strategy: "jwt",
+//       accessToken: localStorage.getItem("feathers-jwt"),
+//     });
+//   }
+// });
 </script>
